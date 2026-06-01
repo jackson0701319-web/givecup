@@ -148,7 +148,7 @@ export function RankingBoard({ onDonateClick, refreshSignal }: RankingBoardProps
     const supabase = getSupabase()
     if (!supabase) {
       setError(
-        "Supabase 연결 정보가 없습니다. Vercel Environment Variables(NEXT_PUBLIC_*) 설정 후 Redeploy 해주세요."
+        "Supabase 연결 정보가 없습니다. 로컬: .env.local 확인 후 dev 재시작. 배포: Vercel Environment Variables 3개 저장 후 최신 배포 Redeploy."
       )
       setLoadingCountries(false)
       return
@@ -179,7 +179,7 @@ export function RankingBoard({ onDonateClick, refreshSignal }: RankingBoardProps
     const supabase = getSupabase()
     if (!supabase) {
       setError(
-        "Supabase 연결 정보가 없습니다. Vercel Environment Variables(NEXT_PUBLIC_*) 설정 후 Redeploy 해주세요."
+        "Supabase 연결 정보가 없습니다. 로컬: .env.local 확인 후 dev 재시작. 배포: Vercel Environment Variables 3개 저장 후 최신 배포 Redeploy."
       )
       setLoadingGroups(false)
       return

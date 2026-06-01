@@ -17,7 +17,7 @@ export function LiveStats() {
     const supabase = getSupabase()
     if (!supabase) {
       setError(
-        "Supabase 연결 정보가 없습니다. Vercel 환경 변수 설정 후 Redeploy 해주세요."
+        "Supabase 연결 정보가 없습니다. 로컬: .env.local + dev 재시작. 배포: Vercel env 3개 + Redeploy."
       )
       setLoading(false)
       return
