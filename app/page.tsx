@@ -87,7 +87,7 @@ export default function Home() {
         </div>
 
         {/* Trust badges */}
-        <div className="flex flex-wrap justify-center gap-8 mb-14">
+        <div className="flex flex-col items-center gap-4 mb-14 sm:flex-row sm:flex-wrap sm:justify-center sm:gap-8">
           <div className="flex items-center gap-2.5 text-muted-foreground">
             <div className="p-2 rounded-full bg-accent/10">
               <Shield className="w-4 h-4 text-accent" />

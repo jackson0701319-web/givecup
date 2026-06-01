@@ -25,6 +25,7 @@ import {
   normalizeDonationTarget,
 } from "@/lib/donation-target"
 import { readApiJson } from "@/lib/api-response"
+import { DonationCertificateShare } from "@/components/donation-certificate-share"
 import { useSupabase } from "@/components/supabase-provider"
 import type { CountryRow } from "@/lib/supabase/database.types"
 
@@ -63,6 +64,7 @@ interface DonationReceipt {
   targetIcon: string
   targetSubtitle?: string
   countryName?: string
+  countryCode?: string
   countryFlag?: string
   amount: number
   issuedAt: string
@@ -231,6 +233,7 @@ export function DonationModal({
         group_name?: string
         group_category?: string
         country_name?: string
+        country_code?: string
         country_flag?: string
       }>(response)
 
@@ -257,6 +260,11 @@ export function DonationModal({
           result.group_category ??
           (isGroup ? activeTarget.category : undefined),
         countryName: result.country_name,
+        countryCode:
+          result.country_code ??
+          (activeTarget.type === "country"
+            ? activeTarget.countryCode
+            : undefined),
         countryFlag: result.country_flag ?? result.target_icon,
         amount: donationAmount,
         issuedAt: new Date().toISOString(),
@@ -630,6 +638,19 @@ export function DonationModal({
                       </div>
                     </div>
                   </div>
+                )}
+
+                {receipt && (
+                  <DonationCertificateShare
+                    donorName={receipt.donorName}
+                    amount={receipt.amount}
+                    targetType={receipt.targetType}
+                    targetLabel={receipt.targetLabel}
+                    targetIcon={receipt.targetIcon}
+                    targetSubtitle={receipt.targetSubtitle}
+                    countryName={receipt.countryName}
+                    countryCode={receipt.countryCode}
+                  />
                 )}
 
                 <Button

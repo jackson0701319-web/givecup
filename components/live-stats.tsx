@@ -107,17 +107,19 @@ export function LiveStats() {
   ]
 
   return (
-    <div className="flex flex-wrap justify-center gap-6 lg:gap-8">
+    <div className="grid w-full max-w-4xl grid-cols-1 gap-4 px-2 sm:grid-cols-3 sm:gap-5 sm:px-0">
       {stats.map((stat, index) => (
         <div
           key={index}
-          className="flex flex-col items-center gap-4 bg-card rounded-2xl px-10 py-8 shadow-md border border-border/50 min-w-[200px]"
+          className="flex min-w-0 flex-col items-center gap-3 bg-card rounded-2xl px-6 py-6 shadow-md border border-border/50 sm:gap-4 sm:px-8 sm:py-8"
         >
           <div className={`p-4 rounded-full ${stat.bgColor} ${stat.color}`}>
             {stat.icon}
           </div>
           <div className="text-center">
-            <div className={`font-mono font-bold text-2xl lg:text-3xl ${stat.color}`}>
+            <div
+              className={`font-mono font-bold text-xl sm:text-2xl lg:text-3xl break-all ${stat.color}`}
+            >
               {stat.prefix}
               {stat.value.toLocaleString()}
               {stat.suffix}

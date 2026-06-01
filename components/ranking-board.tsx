@@ -511,8 +511,8 @@ export function RankingBoard({ onDonateClick, refreshSignal }: RankingBoardProps
         )}
       </div>
 
-      <div className="bg-card rounded-2xl shadow-lg border border-border/60">
-        <div className="bg-primary px-8 py-5 rounded-t-2xl">
+      <div className="bg-card rounded-2xl shadow-lg border border-border/60 overflow-hidden">
+        <div className="hidden bg-primary px-8 py-5 rounded-t-2xl md:block">
           <div className="grid grid-cols-12 gap-6 text-sm font-medium uppercase tracking-wide text-primary-foreground/90">
             <div className="col-span-1 text-center">순위</div>
             <div className="col-span-5">{entityLabel}</div>
@@ -524,7 +524,7 @@ export function RankingBoard({ onDonateClick, refreshSignal }: RankingBoardProps
 
         <div className="relative rounded-b-2xl">
           {filteredEntries.length === 0 ? (
-            <div className="px-8 py-16 text-center text-muted-foreground">
+            <div className="px-4 py-16 text-center text-muted-foreground md:px-8">
               검색 결과가 없습니다. 다른 {entityLabel} 이름으로 다시 검색해 주세요.
             </div>
           ) : (
@@ -539,99 +539,145 @@ export function RankingBoard({ onDonateClick, refreshSignal }: RankingBoardProps
                   key={entry.rowKey}
                   ref={(element) => setRowRef(entry.rowKey, element)}
                   className={cn(
-                    "grid grid-cols-12 gap-6 items-center px-8 py-5 border-b border-border/40 last:border-b-0",
+                    "border-b border-border/40 px-4 py-4 last:border-b-0 md:grid md:grid-cols-12 md:items-center md:gap-6 md:px-8 md:py-5",
                     getRankStyle(entry.rank),
                     animatingIds.has(entry.id) && "bg-accent/10"
                   )}
                 >
-                  <div className="col-span-1 flex justify-center">
-                    {getRankBadge(entry.rank)}
-                  </div>
+                  {/* Mobile layout */}
+                  <div className="flex flex-col gap-3 md:hidden">
+                    <div className="flex items-start gap-3">
+                      <div className="shrink-0 scale-90 origin-top">
+                        {getRankBadge(entry.rank)}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="text-2xl leading-none shrink-0">
+                            {entry.icon}
+                          </span>
+                          <div className="min-w-0">
+                            <p
+                              className={cn(
+                                "font-semibold text-base leading-tight truncate",
+                                entry.rank <= 3
+                                  ? "text-foreground"
+                                  : "text-foreground/85"
+                              )}
+                            >
+                              {entry.name}
+                            </p>
+                            {entry.subtitle && (
+                              <p className="text-xs text-muted-foreground truncate">
+                                {entry.subtitle}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="shrink-0">
+                        <RankChangeBadge
+                          change={change}
+                          rankShift={rankShift}
+                          isAnimating={animatingIds.has(entry.id)}
+                        />
+                      </div>
+                    </div>
 
-                  <div className="col-span-5 flex items-center gap-4">
-                    <span className="text-4xl">{entry.icon}</span>
-                    <div className="flex w-full items-center justify-between gap-3 min-w-0">
-                      <div className="min-w-0">
-                        <span
+                    <div className="grid grid-cols-2 gap-3 rounded-xl bg-background/50 px-3 py-2.5 border border-border/30">
+                      <div>
+                        <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+                          총 기부금
+                        </p>
+                        <p
                           className={cn(
-                            "font-semibold text-lg tracking-tight block truncate",
-                            entry.rank <= 3
-                              ? "text-foreground"
-                              : "text-foreground/85"
+                            "mt-0.5 font-mono text-lg font-bold",
+                            entry.rank === 1 ? "text-amber-600" : "text-primary"
                           )}
                         >
-                          {entry.name}
-                        </span>
-                        {entry.subtitle && (
-                          <span className="text-xs text-muted-foreground">
-                            {entry.subtitle}
-                          </span>
-                        )}
+                          {formatAmount(entry.amount)}
+                        </p>
                       </div>
-                      <Button
-                        size="sm"
-                        onClick={() => handleDonate(entry)}
-                        className="bg-cta hover:bg-cta/90 text-cta-foreground h-8 px-3 text-xs font-semibold whitespace-nowrap shrink-0"
-                      >
-                        <Heart className="w-3.5 h-3.5 mr-1" />
-                        화력 지원 ⚽
-                      </Button>
+                      <div className="text-right">
+                        <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+                          기부자
+                        </p>
+                        <p className="mt-0.5 font-mono text-lg font-semibold text-muted-foreground">
+                          {formatNumber(entry.donors)}명
+                        </p>
+                      </div>
                     </div>
-                  </div>
 
-                  <div className="col-span-3 text-right">
-                    <span
-                      className={cn(
-                        "font-mono font-bold text-xl tracking-tight",
-                        entry.rank === 1 ? "text-amber-600" : "text-primary"
-                      )}
+                    <Button
+                      size="sm"
+                      onClick={() => handleDonate(entry)}
+                      className="w-full bg-cta hover:bg-cta/90 text-cta-foreground h-10 text-sm font-semibold"
                     >
-                      {formatAmount(entry.amount)}
-                    </span>
+                      <Heart className="w-4 h-4 mr-1.5" />
+                      화력 지원 ⚽
+                    </Button>
                   </div>
 
-                  <div className="col-span-2 text-right">
-                    <span className="font-mono text-muted-foreground text-base">
-                      {formatNumber(entry.donors)}명
-                    </span>
-                  </div>
+                  {/* Desktop layout */}
+                  <div className="hidden md:contents">
+                    <div className="col-span-1 flex justify-center">
+                      {getRankBadge(entry.rank)}
+                    </div>
 
-                  <div className="col-span-1 flex justify-center">
-                    {change === "up" && (
-                      <div
+                    <div className="col-span-5 flex items-center gap-4">
+                      <span className="text-4xl">{entry.icon}</span>
+                      <div className="flex w-full items-center justify-between gap-3 min-w-0">
+                        <div className="min-w-0">
+                          <span
+                            className={cn(
+                              "font-semibold text-lg tracking-tight block truncate",
+                              entry.rank <= 3
+                                ? "text-foreground"
+                                : "text-foreground/85"
+                            )}
+                          >
+                            {entry.name}
+                          </span>
+                          {entry.subtitle && (
+                            <span className="text-xs text-muted-foreground">
+                              {entry.subtitle}
+                            </span>
+                          )}
+                        </div>
+                        <Button
+                          size="sm"
+                          onClick={() => handleDonate(entry)}
+                          className="bg-cta hover:bg-cta/90 text-cta-foreground h-8 px-3 text-xs font-semibold whitespace-nowrap shrink-0"
+                        >
+                          <Heart className="w-3.5 h-3.5 mr-1" />
+                          화력 지원 ⚽
+                        </Button>
+                      </div>
+                    </div>
+
+                    <div className="col-span-3 text-right">
+                      <span
                         className={cn(
-                          "flex min-w-10 flex-col items-center justify-center gap-0.5 rounded-full px-1.5 py-1.5 bg-emerald-50 text-emerald-600",
-                          animatingIds.has(entry.id) &&
-                            "ring-2 ring-emerald-300 scale-110"
+                          "font-mono font-bold text-xl tracking-tight",
+                          entry.rank === 1 ? "text-amber-600" : "text-primary"
                         )}
                       >
-                        <ArrowUp className="w-4 h-4" />
-                        {rankShift > 0 ? (
-                          <span className="text-[10px] font-bold leading-none">
-                            +{rankShift}
-                          </span>
-                        ) : (
-                          <span className="text-[10px] font-medium leading-none opacity-70">
-                            ·
-                          </span>
-                        )}
-                      </div>
-                    )}
-                    {change === "down" && (
-                      <div className="flex min-w-10 flex-col items-center justify-center gap-0.5 rounded-full px-1.5 py-1.5 bg-rose-50 text-rose-500">
-                        <ArrowDown className="w-4 h-4" />
-                        {rankShift > 0 && (
-                          <span className="text-[10px] font-bold leading-none">
-                            -{rankShift}
-                          </span>
-                        )}
-                      </div>
-                    )}
-                    {change === "same" && (
-                      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-secondary text-muted-foreground">
-                        <Minus className="w-4 h-4" />
-                      </div>
-                    )}
+                        {formatAmount(entry.amount)}
+                      </span>
+                    </div>
+
+                    <div className="col-span-2 text-right">
+                      <span className="font-mono text-muted-foreground text-base">
+                        {formatNumber(entry.donors)}명
+                      </span>
+                    </div>
+
+                    <div className="col-span-1 flex justify-center">
+                      <RankChangeBadge
+                        change={change}
+                        rankShift={rankShift}
+                        isAnimating={animatingIds.has(entry.id)}
+                      />
+                    </div>
                   </div>
                 </div>
               )
@@ -667,6 +713,51 @@ function RankingBoardHeader({
           집단 추가
         </Button>
       )}
+    </div>
+  )
+}
+
+function RankChangeBadge({
+  change,
+  rankShift,
+  isAnimating,
+}: {
+  change: RankDisplay["change"]
+  rankShift: number
+  isAnimating: boolean
+}) {
+  if (change === "up") {
+    return (
+      <div
+        className={cn(
+          "flex min-w-9 flex-col items-center justify-center gap-0.5 rounded-full px-1.5 py-1.5 bg-emerald-50 text-emerald-600",
+          isAnimating && "ring-2 ring-emerald-300 scale-110"
+        )}
+      >
+        <ArrowUp className="w-4 h-4" />
+        {rankShift > 0 ? (
+          <span className="text-[10px] font-bold leading-none">+{rankShift}</span>
+        ) : (
+          <span className="text-[10px] font-medium leading-none opacity-70">·</span>
+        )}
+      </div>
+    )
+  }
+
+  if (change === "down") {
+    return (
+      <div className="flex min-w-9 flex-col items-center justify-center gap-0.5 rounded-full px-1.5 py-1.5 bg-rose-50 text-rose-500">
+        <ArrowDown className="w-4 h-4" />
+        {rankShift > 0 && (
+          <span className="text-[10px] font-bold leading-none">-{rankShift}</span>
+        )}
+      </div>
+    )
+  }
+
+  return (
+    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-secondary text-muted-foreground">
+      <Minus className="w-4 h-4" />
     </div>
   )
 }
