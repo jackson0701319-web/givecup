@@ -132,7 +132,7 @@ export function LiveDonationTicker() {
     <div
       className="fixed top-24 right-4 z-[100] flex w-[min(100vw-2rem,22rem)] flex-col gap-2 pointer-events-none"
       aria-live="polite"
-      aria-label="실시간 기부 알림"
+      aria-label="실시간 유효슈팅 중계"
     >
       {toasts.map((toast) => (
         <div

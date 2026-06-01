@@ -19,9 +19,9 @@ const robotoMono = Roboto_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'GiveCup · 기부컵 — 전 세계 기부 축제',
+  title: 'GiveCup: 2026 World Cup Edition · 기부컵',
   description:
-    '월드컵처럼 전 세계가 하나 되어 즐기는 기부 축제. 국가별 순위로 함께 나눔에 참여하세요.',
+    '2026 북중미 월드컵 한정판! 경기장 밖에서 펼쳐지는 기부 랭킹 대전. 당신의 국가와 집단을 1위로 만드세요.',
   generator: 'v0.app',
   icons: {
     icon: [

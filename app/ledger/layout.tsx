@@ -1,9 +1,9 @@
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "실시간 오픈 장부 · GiveCup",
+  title: "월드컵 실시간 공정 장부 (심판실) · GiveCup",
   description:
-    "전 세계 기부 내역이 실시간으로 기록되는 GiveCup 투명성 오픈 장부입니다.",
+    "2026 월드컵 시즌 한정! 모든 유효슈팅(기부)이 영수증 ID와 함께 심판실 장부에 실시간 기록됩니다.",
 }
 
 export default function LedgerLayout({

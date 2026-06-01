@@ -496,7 +496,7 @@ export function RankingBoard({ onDonateClick, refreshSignal }: RankingBoardProps
                     </p>
                   </div>
                   <span className="shrink-0 rounded-full bg-cta px-3 py-1 text-xs font-semibold text-cta-foreground">
-                    기부하기
+                    화력 지원 ⚽
                   </span>
                 </button>
               </li>
@@ -574,7 +574,7 @@ export function RankingBoard({ onDonateClick, refreshSignal }: RankingBoardProps
                         className="bg-cta hover:bg-cta/90 text-cta-foreground h-8 px-3 text-xs font-semibold whitespace-nowrap shrink-0"
                       >
                         <Heart className="w-3.5 h-3.5 mr-1" />
-                        기부하기
+                        화력 지원 ⚽
                       </Button>
                     </div>
                   </div>

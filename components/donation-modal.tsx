@@ -108,10 +108,9 @@ export function DonationModal({
 
   const resolvedTarget = normalizeDonationTarget(target)
   const isGroup = resolvedTarget?.type === "group"
-  const headline = isGroup
-    ? "당신의 이름으로 집단의 명예를 올리세요"
-    : "당신의 이름으로 국가의 명예를 올리세요"
-  const targetKindLabel = isGroup ? "집단" : "국가"
+  const modalTitle = resolvedTarget
+    ? `${resolvedTarget.name}에게 화력 지원하기 ⚽`
+    : "화력 지원하기 ⚽"
 
   const resetForm = useCallback(() => {
     setStep("form")
@@ -296,10 +295,10 @@ export function DonationModal({
             <>
               <div className="relative shrink-0 border-b border-border/30 bg-gradient-to-r from-primary/10 to-accent/10 px-6 py-5 pr-14">
                 <Dialog.Title className="text-xl font-bold text-foreground text-center">
-                  {headline}
+                  {modalTitle}
                 </Dialog.Title>
                 <Dialog.Description className="text-sm text-muted-foreground text-center mt-1">
-                  기부금은 검증된 국제 구호 단체에 100% 전달됩니다.
+                  유효슈팅 100% · 검증된 국제 구호 단체에 전액 전달됩니다.
                 </Dialog.Description>
                 {resolvedTarget && (
                   <div className="mt-3 flex flex-col items-center justify-center gap-1 text-sm font-medium text-foreground">
@@ -310,7 +309,6 @@ export function DonationModal({
                         {resolvedTarget.category
                           ? ` (${resolvedTarget.category})`
                           : ""}
-                        에 기부
                       </span>
                     </div>
                   </div>
@@ -436,15 +434,15 @@ export function DonationModal({
                       <Heart className="w-4 h-4 text-accent" />
                     </div>
                     <p className="text-sm text-muted-foreground leading-relaxed">
-                      GiveCup은 전 세계 유저에게 실시간 무료 서비스를 제공하기
-                      위해 기부금에서 수수료를 떼지 않습니다. 시스템 유지와 1인
-                      개발자 지원을 위해 따뜻한 응원의 팁을 보태주세요.
+                      기부컵은 월드컵 시즌에도 기부금에서 수수료를 떼지 않습니다.
+                      서버·실시간 랭킹 유지를 위해 운영진에게 이온음료 한 캔
+                      정도만 후원해 주셔도 충분해요.
                     </p>
                   </div>
 
                   <div>
                     <label className="text-sm font-medium text-foreground mb-2 block">
-                      플랫폼 자율 후원
+                      기부컵 서버 운영진에게 이온음료 후원하기 (선택)
                     </label>
                     <div className="grid grid-cols-4 gap-3">
                       {PLATFORM_TIP_OPTIONS.map((option) => (
@@ -528,8 +526,8 @@ export function DonationModal({
                 >
                   <Heart className="w-5 h-5 mr-2" />
                   {isSubmitting
-                    ? "처리 중..."
-                    : `결제하고 ${resolvedTarget?.name ?? targetKindLabel} 순위 올리기`}
+                    ? "킥오프 중..."
+                    : "골 넣으러 가기 (기부하기)"}
                 </Button>
               </div>
             </>
@@ -540,7 +538,7 @@ export function DonationModal({
                   <Sparkles className="h-7 w-7 text-emerald-600 dark:text-emerald-400" />
                 </div>
                 <Dialog.Title className="text-xl font-bold text-foreground">
-                  기부 성공! 영수증이 발급되었습니다.
+                  유효슈팅 성공! VAR 통과 · 영수증 발급
                 </Dialog.Title>
                 <Dialog.Description className="sr-only">
                   기부가 완료되었으며 영수증이 발급되었습니다.
@@ -557,7 +555,7 @@ export function DonationModal({
                       <div className="flex items-center gap-2">
                         <Receipt className="h-5 w-5 text-primary" />
                         <span className="text-sm font-semibold tracking-wide text-primary uppercase">
-                          GiveCup Receipt
+                          GiveCup · Match Receipt
                         </span>
                       </div>
                       <span className="rounded-full bg-emerald-500/15 px-2.5 py-0.5 text-xs font-medium text-emerald-700 dark:text-emerald-400">

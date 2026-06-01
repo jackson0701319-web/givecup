@@ -207,8 +207,8 @@ export default function LedgerPage() {
                 <BookOpen className="h-4 w-4 text-primary-foreground" />
               </div>
               <div>
-                <p className="text-sm font-bold text-foreground">오픈 장부</p>
-                <p className="text-xs text-muted-foreground">GiveCup Ledger</p>
+                <p className="text-sm font-bold text-foreground">심판실</p>
+                <p className="text-xs text-muted-foreground">World Cup Ledger</p>
               </div>
             </div>
           </div>
@@ -227,7 +227,7 @@ export default function LedgerPage() {
                 liveConnected ? "animate-pulse bg-accent" : "bg-muted-foreground"
               )}
             />
-            {liveConnected ? "실시간 연결됨" : "연결 중…"}
+            {liveConnected ? "VAR LIVE" : "심판실 연결 중…"}
           </div>
         </div>
       </header>
@@ -236,14 +236,14 @@ export default function LedgerPage() {
         <div className="mb-10 text-center">
           <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-sm font-medium text-primary">
             <Radio className="h-4 w-4" />
-            전 세계 기부가 이곳에 실시간 기록됩니다
+            전 세계 유효슈팅이 심판실에 실시간 기록됩니다
           </div>
           <h1 className="text-3xl font-bold tracking-tight text-foreground md:text-4xl">
-            GiveCup 실시간 오픈 장부
+            📊 월드컵 실시간 공정 장부 (심판실)
           </h1>
           <p className="mx-auto mt-3 max-w-2xl text-muted-foreground leading-relaxed">
-            모든 기부는 영수증 ID와 함께 공개 장부에 남습니다. 기부 후 받은
-            UUID로 본인 기부를 직접 검증할 수 있습니다.
+            모든 화력 지원은 영수증 ID와 함께 공개 장부에 남습니다. 경기 후 받은
+            UUID로 본인 슈팅을 직접 VAR 검증하세요.
           </p>
         </div>
 
@@ -400,7 +400,7 @@ export default function LedgerPage() {
 
         <div className="mt-8 flex flex-wrap items-center justify-center gap-2 text-sm text-muted-foreground">
           <Shield className="h-4 w-4 text-accent" />
-          <span>공개 장부 · 영수증으로 개별 기부 검증 가능</span>
+          <span>공정 장부 · 영수증으로 개별 유효슈팅 VAR 검증 가능</span>
         </div>
       </div>
     </main>

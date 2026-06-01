@@ -1,6 +1,4 @@
 import type { DonationRow } from "@/lib/supabase/database.types"
-import { getGroupCategoryIcon } from "@/lib/groups"
-
 export interface CountryToastLookup {
   name: string
   flag_emoji: string
@@ -21,13 +19,11 @@ export function formatDonationToastAmount(amount: number): string {
   })}`
 }
 
-export function buildDonationToastMessage(
-  row: Pick<DonationRow, "amount" | "group_id" | "country_code">,
+function resolveToastTargetLabel(
+  row: Pick<DonationRow, "group_id" | "country_code">,
   countries: Map<string, CountryToastLookup>,
   groups: Map<string, GroupToastLookup>
 ): string | null {
-  const amountLabel = formatDonationToastAmount(row.amount)
-
   if (row.group_id) {
     const group = groups.get(row.group_id)
     const groupName = group?.group_name ?? "집단"
@@ -35,19 +31,32 @@ export function buildDonationToastMessage(
     if (row.country_code) {
       const code = row.country_code.toUpperCase()
       const country = countries.get(code)
-      const flag = country?.flag_emoji ?? "🌍"
-      return `방금 ${groupName} ${flag}에서 ${amountLabel} 기부!`
+      return `${groupName} · ${country?.name ?? code}`
     }
 
-    const icon = getGroupCategoryIcon(group?.category ?? "")
-    return `방금 ${groupName} ${icon}에서 ${amountLabel} 기부!`
+    return groupName
   }
 
   if (row.country_code) {
     const code = row.country_code.toUpperCase()
     const country = countries.get(code)
-    return `방금 ${country?.name ?? code} ${country?.flag_emoji ?? "🌍"}에서 ${amountLabel} 기부!`
+    return country?.name ?? code
   }
 
   return null
+}
+
+export function buildDonationToastMessage(
+  row: Pick<DonationRow, "amount" | "group_id" | "country_code" | "donor_name">,
+  countries: Map<string, CountryToastLookup>,
+  groups: Map<string, GroupToastLookup>
+): string | null {
+  const targetLabel = resolveToastTargetLabel(row, countries, groups)
+  if (!targetLabel) return null
+
+  const donor =
+    row.donor_name?.trim() || "익명의 기부자"
+  const amountLabel = formatDonationToastAmount(row.amount)
+
+  return `⚡ ${donor}님이 ${targetLabel}에 ${amountLabel}만큼 강력한 유효슈팅을 날렸습니다!`
 }
