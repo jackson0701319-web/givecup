@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useRef, useState } from "react"
+import { useCallback, useLayoutEffect, useRef, useState } from "react"
 import { toPng } from "html-to-image"
 import { Camera, Loader2, Share2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -16,12 +16,30 @@ const DOWNLOAD_FILENAME = "givecup-certificate.png"
 interface DonationCertificateShareProps extends DonationCertificateCardProps {}
 
 export function DonationCertificateShare(props: DonationCertificateShareProps) {
-  const cardRef = useRef<HTMLDivElement>(null)
+  const exportRef = useRef<HTMLDivElement>(null)
+  const previewContainerRef = useRef<HTMLDivElement>(null)
+  const [previewScale, setPreviewScale] = useState(1)
   const [isExporting, setIsExporting] = useState(false)
   const [exportError, setExportError] = useState<string | null>(null)
 
+  useLayoutEffect(() => {
+    const node = previewContainerRef.current
+    if (!node) return
+
+    const updateScale = () => {
+      const width = node.getBoundingClientRect().width
+      if (width <= 0) return
+      setPreviewScale(Math.min(1, width / CERTIFICATE_CARD_WIDTH))
+    }
+
+    updateScale()
+    const observer = new ResizeObserver(updateScale)
+    observer.observe(node)
+    return () => observer.disconnect()
+  }, [])
+
   const handleDownload = useCallback(async () => {
-    const node = cardRef.current
+    const node = exportRef.current
     if (!node || isExporting) return
 
     setIsExporting(true)
@@ -33,10 +51,6 @@ export function DonationCertificateShare(props: DonationCertificateShareProps) {
         height: CERTIFICATE_CARD_HEIGHT,
         pixelRatio: 2,
         cacheBust: true,
-        style: {
-          transform: "scale(1)",
-          transformOrigin: "top left",
-        },
       })
 
       const link = document.createElement("a")
@@ -50,6 +64,9 @@ export function DonationCertificateShare(props: DonationCertificateShareProps) {
     }
   }, [isExporting])
 
+  const scaledWidth = CERTIFICATE_CARD_WIDTH * previewScale
+  const scaledHeight = CERTIFICATE_CARD_HEIGHT * previewScale
+
   return (
     <section className="space-y-4" aria-label="인스타그램 스토리 공유">
       <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
@@ -57,14 +74,36 @@ export function DonationCertificateShare(props: DonationCertificateShareProps) {
         인스타 스토리에 공유하기
       </div>
 
-      <div className="flex justify-center overflow-x-auto rounded-2xl border border-border/50 bg-muted/30 p-3 sm:p-4">
-        <div
-          className="origin-top overflow-hidden rounded-xl shadow-2xl ring-1 ring-white/10 scale-[0.82] sm:scale-100"
-          style={{
-            width: CERTIFICATE_CARD_WIDTH,
-          }}
-        >
-          <DonationCertificateCard ref={cardRef} {...props} />
+      {/* Full-size capture target (off-screen, never clipped by modal) */}
+      <div
+        aria-hidden
+        className="pointer-events-none fixed left-0 top-0 -z-10 opacity-0"
+        style={{
+          width: CERTIFICATE_CARD_WIDTH,
+          height: CERTIFICATE_CARD_HEIGHT,
+        }}
+      >
+        <DonationCertificateCard ref={exportRef} {...props} />
+      </div>
+
+      <div className="w-full rounded-2xl border border-border/50 bg-muted/30 px-2 py-4 sm:px-4">
+        <div ref={previewContainerRef} className="w-full max-w-[360px] mx-auto">
+          <div
+            className="relative mx-auto"
+            style={{ width: scaledWidth, height: scaledHeight }}
+          >
+            <div
+              className="absolute left-0 top-0 overflow-hidden rounded-xl shadow-2xl ring-1 ring-white/10"
+              style={{
+                width: CERTIFICATE_CARD_WIDTH,
+                height: CERTIFICATE_CARD_HEIGHT,
+                transform: `scale(${previewScale})`,
+                transformOrigin: "top left",
+              }}
+            >
+              <DonationCertificateCard {...props} />
+            </div>
+          </div>
         </div>
       </div>
 

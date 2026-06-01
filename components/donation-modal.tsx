@@ -553,9 +553,9 @@ export function DonationModal({
                 </Dialog.Description>
               </div>
 
-              <div className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain p-6 space-y-6">
+              <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-y-contain px-4 py-6 space-y-6 sm:px-6">
                 {receipt && (
-                  <div className="relative overflow-hidden rounded-2xl border-2 border-dashed border-primary/30 bg-gradient-to-b from-card to-muted/40 p-6 shadow-inner">
+                  <div className="relative overflow-hidden rounded-2xl border-2 border-dashed border-primary/30 bg-gradient-to-b from-card to-muted/40 p-4 shadow-inner sm:p-6">
                     <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-primary/10" />
                     <div className="absolute -bottom-8 -left-4 h-20 w-20 rounded-full bg-accent/10" />
 
