@@ -147,7 +147,9 @@ export function RankingBoard({ onDonateClick, refreshSignal }: RankingBoardProps
   const loadCountries = useCallback(async () => {
     const supabase = getSupabase()
     if (!supabase) {
-      setError("Supabase 연결 정보가 없습니다. .env.local 파일을 확인해주세요.")
+      setError(
+        "Supabase 연결 정보가 없습니다. Vercel Environment Variables(NEXT_PUBLIC_*) 설정 후 Redeploy 해주세요."
+      )
       setLoadingCountries(false)
       return
     }
@@ -176,7 +178,9 @@ export function RankingBoard({ onDonateClick, refreshSignal }: RankingBoardProps
   const loadGroups = useCallback(async () => {
     const supabase = getSupabase()
     if (!supabase) {
-      setError("Supabase 연결 정보가 없습니다. .env.local 파일을 확인해주세요.")
+      setError(
+        "Supabase 연결 정보가 없습니다. Vercel Environment Variables(NEXT_PUBLIC_*) 설정 후 Redeploy 해주세요."
+      )
       setLoadingGroups(false)
       return
     }

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Noto_Sans_KR, Roboto_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
+import { readSupabasePublicEnvFromProcess } from '@/lib/supabase/public-env'
 import './globals.css'
 
 const notoSansKR = Noto_Sans_KR({ 
@@ -42,9 +43,20 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const supabasePublicEnv = readSupabasePublicEnvFromProcess()
+
   return (
     <html lang="ko" className={`${notoSansKR.variable} ${robotoMono.variable} bg-background`}>
       <body className="font-sans antialiased bg-background">
+        {supabasePublicEnv ? (
+          <script
+            id="givecup-supabase-env"
+            type="application/json"
+            dangerouslySetInnerHTML={{
+              __html: JSON.stringify(supabasePublicEnv),
+            }}
+          />
+        ) : null}
         {children}
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>

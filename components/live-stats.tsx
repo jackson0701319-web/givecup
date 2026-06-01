@@ -16,7 +16,9 @@ export function LiveStats() {
   const loadStats = useCallback(async () => {
     const supabase = getSupabase()
     if (!supabase) {
-      setError("Supabase 연결 정보가 없습니다.")
+      setError(
+        "Supabase 연결 정보가 없습니다. Vercel 환경 변수 설정 후 Redeploy 해주세요."
+      )
       setLoading(false)
       return
     }
