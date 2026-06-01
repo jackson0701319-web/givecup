@@ -19,7 +19,7 @@ const robotoMono = Roboto_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'GiveCup · 기브컵 — 전 세계 기부 축제',
+  title: 'GiveCup · 기부컵 — 전 세계 기부 축제',
   description:
     '월드컵처럼 전 세계가 하나 되어 즐기는 기부 축제. 국가별 순위로 함께 나눔에 참여하세요.',
   generator: 'v0.app',

@@ -33,7 +33,7 @@ export default function Home() {
           </div>
           <div className="hidden sm:block">
             <span className="font-bold text-xl text-foreground tracking-tight">GiveCup</span>
-            <span className="text-muted-foreground text-sm ml-2">기브컵</span>
+            <span className="text-muted-foreground text-sm ml-2">기부컵</span>
           </div>
         </div>
         <div className="text-sm text-muted-foreground hidden md:block">
@@ -54,7 +54,7 @@ export default function Home() {
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6 text-balance leading-tight">
             월드컵처럼 전 세계가 하나 되어 즐기는
             <br />
-            <span className="text-primary">기브컵 GiveCup</span>
+            <span className="text-primary">기부컵 GiveCup</span>
           </h1>
           <p className="text-lg lg:text-xl text-muted-foreground max-w-2xl mx-auto text-pretty leading-relaxed">
             국가별 순위로 나눔의 열기를 함께해요. 당신의 기부가 우리나라의 순위를 바꿉니다.
@@ -157,7 +157,7 @@ export default function Home() {
                   </div>
                   <div>
                     <span className="font-bold text-lg text-foreground tracking-tight">GiveCup</span>
-                    <p className="text-muted-foreground text-xs">기브컵</p>
+                    <p className="text-muted-foreground text-xs">기부컵</p>
                   </div>
                 </div>
                 <p className="text-sm text-muted-foreground leading-relaxed">
