@@ -32,6 +32,7 @@ function resolveSupabasePublicEnv(): SupabasePublicEnv | null {
   )
 }
 
+/** Prefer `useSupabase()` from `@/components/supabase-provider` in client components. */
 export function getSupabase(): SupabaseClient<Database> | null {
   if (client) return client
 

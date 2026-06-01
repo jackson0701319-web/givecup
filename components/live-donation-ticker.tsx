@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import { Heart } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { getSupabase } from "@/lib/supabase/client"
+import { useSupabase } from "@/components/supabase-provider"
 import type { CountryRow, DonationRow, GroupRow } from "@/lib/supabase/database.types"
 import {
   buildDonationToastMessage,
@@ -21,6 +21,7 @@ interface DonationToast {
 }
 
 export function LiveDonationTicker() {
+  const supabase = useSupabase()
   const [toasts, setToasts] = useState<DonationToast[]>([])
   const countriesByCodeRef = useRef<Map<string, CountryToastLookup>>(new Map())
   const groupsByIdRef = useRef<Map<string, GroupToastLookup>>(new Map())
@@ -61,7 +62,6 @@ export function LiveDonationTicker() {
   )
 
   useEffect(() => {
-    const supabase = getSupabase()
     if (!supabase) return
 
     let active = true
@@ -124,7 +124,7 @@ export function LiveDonationTicker() {
       toastTimersRef.current.clear()
       supabase.removeChannel(channel)
     }
-  }, [addToast])
+  }, [addToast, supabase])
 
   if (toasts.length === 0) return null
 

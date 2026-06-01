@@ -2,11 +2,12 @@
 
 import { useCallback, useEffect, useState } from "react"
 import { Globe, Users, TrendingUp } from "lucide-react"
-import { getSupabase } from "@/lib/supabase/client"
+import { useSupabase } from "@/components/supabase-provider"
 import { aggregateStats } from "@/lib/countries"
 import type { CountryRow } from "@/lib/supabase/database.types"
 
 export function LiveStats() {
+  const supabase = useSupabase()
   const [countryCount, setCountryCount] = useState(0)
   const [totalDonors, setTotalDonors] = useState(0)
   const [totalAmount, setTotalAmount] = useState(0)
@@ -14,7 +15,6 @@ export function LiveStats() {
   const [error, setError] = useState<string | null>(null)
 
   const loadStats = useCallback(async () => {
-    const supabase = getSupabase()
     if (!supabase) {
       setError(
         "Supabase 연결 정보가 없습니다. 로컬: .env.local + dev 재시작. 배포: Vercel env 3개 + Redeploy."
@@ -39,12 +39,11 @@ export function LiveStats() {
     setTotalAmount(stats.totalAmount)
     setError(null)
     setLoading(false)
-  }, [])
+  }, [supabase])
 
   useEffect(() => {
     loadStats()
 
-    const supabase = getSupabase()
     if (!supabase) return
 
     const channel = supabase
@@ -61,7 +60,7 @@ export function LiveStats() {
     return () => {
       supabase.removeChannel(channel)
     }
-  }, [loadStats])
+  }, [loadStats, supabase])
 
   if (loading) {
     return (

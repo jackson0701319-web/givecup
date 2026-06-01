@@ -11,7 +11,7 @@ import {
 import { cn } from "@/lib/utils"
 import { ArrowUp, ArrowDown, Heart, Minus, Plus, Search, X } from "lucide-react"
 import { AddGroupModal } from "@/components/add-group-modal"
-import { getSupabase } from "@/lib/supabase/client"
+import { useSupabase } from "@/components/supabase-provider"
 import { rowsToDisplay } from "@/lib/countries"
 import { groupRowsToDisplay } from "@/lib/groups"
 import { rankEntryMatchesQuery, type RankDisplay, type RankSnapshot } from "@/lib/rankings"
@@ -72,6 +72,7 @@ interface RankingBoardProps {
 }
 
 export function RankingBoard({ onDonateClick, refreshSignal }: RankingBoardProps) {
+  const supabase = useSupabase()
   const [mode, setMode] = useState<RankingMode>("countries")
   const [countryEntries, setCountryEntries] = useState<RankDisplay[]>([])
   const [groupEntries, setGroupEntries] = useState<RankDisplay[]>([])
@@ -145,7 +146,6 @@ export function RankingBoard({ onDonateClick, refreshSignal }: RankingBoardProps
   )
 
   const loadCountries = useCallback(async () => {
-    const supabase = getSupabase()
     if (!supabase) {
       setError(
         "Supabase 연결 정보가 없습니다. 로컬: .env.local 확인 후 dev 재시작. 배포: Vercel Environment Variables 3개 저장 후 최신 배포 Redeploy."
@@ -173,10 +173,9 @@ export function RankingBoard({ onDonateClick, refreshSignal }: RankingBoardProps
     applyDisplayUpdate(display, setCountryEntries, countrySnapshotsRef)
     setError(null)
     setLoadingCountries(false)
-  }, [applyDisplayUpdate])
+  }, [applyDisplayUpdate, supabase])
 
   const loadGroups = useCallback(async () => {
-    const supabase = getSupabase()
     if (!supabase) {
       setError(
         "Supabase 연결 정보가 없습니다. 로컬: .env.local 확인 후 dev 재시작. 배포: Vercel Environment Variables 3개 저장 후 최신 배포 Redeploy."
@@ -204,7 +203,7 @@ export function RankingBoard({ onDonateClick, refreshSignal }: RankingBoardProps
     applyDisplayUpdate(display, setGroupEntries, groupSnapshotsRef)
     setError(null)
     setLoadingGroups(false)
-  }, [applyDisplayUpdate])
+  }, [applyDisplayUpdate, supabase])
 
   useLayoutEffect(() => {
     const previousPositions = positionsBeforeUpdateRef.current
@@ -249,7 +248,6 @@ export function RankingBoard({ onDonateClick, refreshSignal }: RankingBoardProps
     loadCountries()
     loadGroups()
 
-    const supabase = getSupabase()
     if (!supabase) return
 
     const countriesChannel = supabase
@@ -278,7 +276,7 @@ export function RankingBoard({ onDonateClick, refreshSignal }: RankingBoardProps
       supabase.removeChannel(countriesChannel)
       supabase.removeChannel(groupsChannel)
     }
-  }, [loadCountries, loadGroups, refreshSignal])
+  }, [loadCountries, loadGroups, refreshSignal, supabase])
 
   const setRowRef = useCallback((rowKey: string, element: HTMLDivElement | null) => {
     if (element) {

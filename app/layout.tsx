@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Noto_Sans_KR, Roboto_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
+import { SupabaseProvider } from '@/components/supabase-provider'
 import { readSupabasePublicEnvFromProcess } from '@/lib/supabase/public-env'
 import './globals.css'
 
@@ -47,6 +48,8 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   const supabasePublicEnv = readSupabasePublicEnvFromProcess()
+  const supabaseUrl = supabasePublicEnv?.url ?? ''
+  const supabaseAnonKey = supabasePublicEnv?.anonKey ?? ''
 
   return (
     <html lang="ko" className={`${notoSansKR.variable} ${robotoMono.variable} bg-background`}>
@@ -60,7 +63,9 @@ export default function RootLayout({
             }}
           />
         ) : null}
-        {children}
+        <SupabaseProvider url={supabaseUrl} anonKey={supabaseAnonKey}>
+          {children}
+        </SupabaseProvider>
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>

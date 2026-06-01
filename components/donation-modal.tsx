@@ -25,7 +25,7 @@ import {
   normalizeDonationTarget,
 } from "@/lib/donation-target"
 import { readApiJson } from "@/lib/api-response"
-import { getSupabase } from "@/lib/supabase/client"
+import { useSupabase } from "@/components/supabase-provider"
 import type { CountryRow } from "@/lib/supabase/database.types"
 
 const NO_BONUS_COUNTRY = "__none__"
@@ -83,6 +83,7 @@ export function DonationModal({
   target,
   onDonationSuccess,
 }: DonationModalProps) {
+  const supabase = useSupabase()
   const [step, setStep] = useState<ModalStep>("form")
   const [selectedAmount, setSelectedAmount] = useState<number | null>(10)
   const [customAmount, setCustomAmount] = useState("")
@@ -128,7 +129,6 @@ export function DonationModal({
     if (!open || target?.type !== "group") return
 
     const loadCountries = async () => {
-      const supabase = getSupabase()
       if (!supabase) return
 
       setCountriesLoading(true)
@@ -148,7 +148,7 @@ export function DonationModal({
     }
 
     loadCountries()
-  }, [open, target?.type])
+  }, [open, target?.type, supabase])
 
   const handleOpenChange = (nextOpen: boolean) => {
     if (!nextOpen) {

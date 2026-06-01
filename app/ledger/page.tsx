@@ -13,7 +13,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
-import { getSupabase } from "@/lib/supabase/client"
+import { useSupabase } from "@/components/supabase-provider"
 import type { CountryRow, DonationRow, GroupRow } from "@/lib/supabase/database.types"
 import {
   donationRowToLedgerEntry,
@@ -30,6 +30,7 @@ const INITIAL_LIMIT = 80
 const NEW_ROW_HIGHLIGHT_MS = 2400
 
 export default function LedgerPage() {
+  const supabase = useSupabase()
   const [entries, setEntries] = useState<LedgerEntry[]>([])
   const [receiptSearch, setReceiptSearch] = useState("")
   const [loading, setLoading] = useState(true)
@@ -39,7 +40,6 @@ export default function LedgerPage() {
   const groupsRef = useRef<Map<string, GroupLookup>>(new Map())
 
   const loadCountries = useCallback(async () => {
-    const supabase = getSupabase()
     if (!supabase) return new Map<string, CountryLookup>()
 
     const { data, error: fetchError } = await supabase
@@ -56,10 +56,9 @@ export default function LedgerPage() {
       })
     })
     return map
-  }, [])
+  }, [supabase])
 
   const loadGroups = useCallback(async () => {
-    const supabase = getSupabase()
     if (!supabase) return new Map<string, GroupLookup>()
 
     const { data, error: fetchError } = await supabase
@@ -76,14 +75,13 @@ export default function LedgerPage() {
       })
     })
     return map
-  }, [])
+  }, [supabase])
 
   const loadDonations = useCallback(
     async (
       countryMap: Map<string, CountryLookup>,
       groupMap: Map<string, GroupLookup>
     ) => {
-    const supabase = getSupabase()
     if (!supabase) {
       setError("Supabase 연결 설정을 확인해주세요.")
       return
@@ -106,7 +104,7 @@ export default function LedgerPage() {
       )
     )
   },
-  [])
+  [supabase])
 
   useEffect(() => {
     let active = true
@@ -136,7 +134,6 @@ export default function LedgerPage() {
   }, [loadCountries, loadGroups, loadDonations])
 
   useEffect(() => {
-    const supabase = getSupabase()
     if (!supabase) return
 
     const channel = supabase
@@ -178,7 +175,7 @@ export default function LedgerPage() {
     return () => {
       supabase.removeChannel(channel)
     }
-  }, [])
+  }, [supabase])
 
   const normalizedSearch = normalizeReceiptQuery(receiptSearch)
 
