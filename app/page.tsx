@@ -235,10 +235,8 @@ export default function Home() {
               <div className="text-sm text-muted-foreground">
                 <p>&copy; 2026 GiveCup World Cup Edition. All rights reserved.</p>
               </div>
-              <div className="flex items-center gap-6 text-xs text-muted-foreground">
-                <span>고유번호: 000-00-00000</span>
-                <span>대표: 홍길동</span>
-                <span>서울특별시 중구 세종대로 110</span>
+              <div className="text-xs text-muted-foreground">
+                <span>대표: 구동은</span>
               </div>
             </div>
           </div>
