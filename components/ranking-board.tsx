@@ -73,7 +73,7 @@ interface RankingBoardProps {
 
 export function RankingBoard({ onDonateClick, refreshSignal }: RankingBoardProps) {
   const supabase = useSupabase()
-  const [mode, setMode] = useState<RankingMode>("countries")
+  const [mode, setMode] = useState<RankingMode>("groups")
   const [countryEntries, setCountryEntries] = useState<RankDisplay[]>([])
   const [groupEntries, setGroupEntries] = useState<RankDisplay[]>([])
   const [loadingCountries, setLoadingCountries] = useState(true)
