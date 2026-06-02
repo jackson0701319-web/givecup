@@ -99,6 +99,56 @@ export interface Database {
           created_at?: string
         }
       }
+      payment_orders: {
+        Row: {
+          order_id: string
+          status: string
+          amount_krw: number
+          donation_amount_usd: number
+          tip_amount_usd: number
+          donor_name: string
+          country_code: string | null
+          group_id: string | null
+          order_name: string
+          target_label: string
+          payment_key: string | null
+          receipt_id: string | null
+          created_at: string
+          paid_at: string | null
+        }
+        Insert: {
+          order_id: string
+          status?: string
+          amount_krw: number
+          donation_amount_usd: number
+          tip_amount_usd?: number
+          donor_name: string
+          country_code?: string | null
+          group_id?: string | null
+          order_name: string
+          target_label: string
+          payment_key?: string | null
+          receipt_id?: string | null
+          created_at?: string
+          paid_at?: string | null
+        }
+        Update: {
+          order_id?: string
+          status?: string
+          amount_krw?: number
+          donation_amount_usd?: number
+          tip_amount_usd?: number
+          donor_name?: string
+          country_code?: string | null
+          group_id?: string | null
+          order_name?: string
+          target_label?: string
+          payment_key?: string | null
+          receipt_id?: string | null
+          created_at?: string
+          paid_at?: string | null
+        }
+      }
     }
   }
 }

@@ -15,7 +15,6 @@ import {
   Heart,
   X,
   Shield,
-  Receipt,
   Sparkles,
   Globe,
 } from "lucide-react"
@@ -25,7 +24,15 @@ import {
   normalizeDonationTarget,
 } from "@/lib/donation-target"
 import { readApiJson } from "@/lib/api-response"
-import { DonationCertificateShare } from "@/components/donation-certificate-share"
+import { DonationSuccessPanel } from "@/components/donation-success-panel"
+import { donationResultToReceipt } from "@/lib/donation-receipt"
+import type { DonationReceiptData } from "@/lib/donation-receipt"
+import {
+  estimateKrwFromUsd,
+  getPublicUsdKrwRate,
+  isTossPaymentsEnabledOnClient,
+} from "@/lib/payments-client"
+import { requestGiveCupTossPayment } from "@/lib/request-toss-payment"
 import { useSupabase } from "@/components/supabase-provider"
 import type { CountryRow } from "@/lib/supabase/database.types"
 
@@ -56,19 +63,7 @@ interface CountryOption {
   flag: string
 }
 
-interface DonationReceipt {
-  receiptId: string
-  donorName: string
-  targetType: "country" | "group" | "dual"
-  targetLabel: string
-  targetIcon: string
-  targetSubtitle?: string
-  countryName?: string
-  countryCode?: string
-  countryFlag?: string
-  amount: number
-  issuedAt: string
-}
+type DonationReceipt = DonationReceiptData
 
 interface DonationModalProps {
   open: boolean
@@ -107,6 +102,8 @@ export function DonationModal({
       : tipPreset
 
   const totalAmount = donationAmount + tipAmount
+  const tossPaymentsEnabled = isTossPaymentsEnabledOnClient()
+  const estimatedKrw = estimateKrwFromUsd(donationAmount, tipAmount)
 
   const resolvedTarget = normalizeDonationTarget(target)
   const isGroup = resolvedTarget?.type === "group"
@@ -214,6 +211,42 @@ export function DonationModal({
     }
 
     try {
+      if (tossPaymentsEnabled) {
+        const orderResponse = await fetch("/api/payments/orders", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            ...body,
+            tipAmount,
+            targetLabel: resolvedTarget.name,
+          }),
+        })
+
+        const orderResult = await readApiJson<{
+          error?: string
+          orderId?: string
+          amountKrw?: number
+          orderName?: string
+          customerKey?: string
+        }>(orderResponse)
+
+        if (!orderResponse.ok || !orderResult.orderId || !orderResult.amountKrw) {
+          throw new Error(
+            orderResult.error ?? `결제 주문 생성에 실패했습니다. (${orderResponse.status})`
+          )
+        }
+
+        await requestGiveCupTossPayment({
+          orderId: orderResult.orderId,
+          orderName: orderResult.orderName ?? `GiveCup 기부 (${resolvedTarget.name})`,
+          amountKrw: orderResult.amountKrw,
+          customerName: donorName,
+          customerKey: orderResult.customerKey ?? orderResult.orderId,
+        })
+
+        return
+      }
+
       const response = await fetch("/api/donations", {
         method: "POST",
         headers: {
@@ -249,26 +282,25 @@ export function DonationModal({
 
       const receiptType = result.target_type ?? activeTarget.type
 
-      setReceipt({
-        receiptId: result.receipt_id,
-        donorName: result.donor_name ?? donorName,
-        targetType: receiptType,
-        targetLabel: result.group_name ?? result.target_name ?? activeTarget.name,
-        targetIcon:
-          result.country_flag ?? result.target_icon ?? activeTarget.icon,
-        targetSubtitle:
-          result.group_category ??
-          (isGroup ? activeTarget.category : undefined),
-        countryName: result.country_name,
-        countryCode:
-          result.country_code ??
-          (activeTarget.type === "country"
-            ? activeTarget.countryCode
-            : undefined),
-        countryFlag: result.country_flag ?? result.target_icon,
-        amount: donationAmount,
-        issuedAt: new Date().toISOString(),
-      })
+      setReceipt(
+        donationResultToReceipt(
+          { ...result, donation_amount_usd: donationAmount },
+          {
+            amount: donationAmount,
+            targetType: receiptType,
+            targetLabel: activeTarget.name,
+            targetIcon: activeTarget.icon,
+            targetSubtitle: isGroup ? activeTarget.category : undefined,
+            countryName: result.country_name,
+            countryCode:
+              result.country_code ??
+              (activeTarget.type === "country"
+                ? activeTarget.countryCode
+                : undefined),
+            countryFlag: result.country_flag ?? activeTarget.icon,
+          }
+        )
+      )
       setStep("success")
     } catch (error) {
       const message =
@@ -286,13 +318,6 @@ export function DonationModal({
     resetForm()
     onOpenChange(false)
   }
-
-  const formattedIssuedAt = receipt
-    ? new Date(receipt.issuedAt).toLocaleString("ko-KR", {
-        dateStyle: "medium",
-        timeStyle: "short",
-      })
-    : ""
 
   return (
     <Dialog.Root open={open} onOpenChange={handleOpenChange}>
@@ -509,9 +534,17 @@ export function DonationModal({
                     <span className="text-foreground font-semibold">
                       총 결제 금액
                     </span>
-                    <span className="text-xl font-bold text-primary">
-                      ${totalAmount.toFixed(2)}
-                    </span>
+                    <div className="text-right">
+                      <span className="text-xl font-bold text-primary">
+                        ${totalAmount.toFixed(2)}
+                      </span>
+                      {tossPaymentsEnabled && (
+                        <p className="mt-0.5 text-xs text-muted-foreground">
+                          토스 결제 약 ₩{estimatedKrw.toLocaleString()} (1 USD ≈{" "}
+                          {getPublicUsdKrwRate().toLocaleString()}원)
+                        </p>
+                      )}
+                    </div>
                   </div>
                 </div>
 
@@ -534,8 +567,12 @@ export function DonationModal({
                 >
                   <Heart className="w-5 h-5 mr-2" />
                   {isSubmitting
-                    ? "킥오프 중..."
-                    : "골 넣으러 가기 (기부하기)"}
+                    ? tossPaymentsEnabled
+                      ? "결제창 여는 중..."
+                      : "킥오프 중..."
+                    : tossPaymentsEnabled
+                      ? "토스페이로 결제하기"
+                      : "골 넣으러 가기 (기부하기)"}
                 </Button>
               </div>
             </>
@@ -553,113 +590,14 @@ export function DonationModal({
                 </Dialog.Description>
               </div>
 
-              <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-y-contain px-4 py-6 space-y-6 sm:px-6">
+              <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-y-contain px-4 py-6 sm:px-6">
                 {receipt && (
-                  <div className="relative overflow-hidden rounded-2xl border-2 border-dashed border-primary/30 bg-gradient-to-b from-card to-muted/40 p-4 shadow-inner sm:p-6">
-                    <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-primary/10" />
-                    <div className="absolute -bottom-8 -left-4 h-20 w-20 rounded-full bg-accent/10" />
-
-                    <div className="relative flex items-center justify-between border-b border-border/40 pb-4">
-                      <div className="flex items-center gap-2">
-                        <Receipt className="h-5 w-5 text-primary" />
-                        <span className="text-sm font-semibold tracking-wide text-primary uppercase">
-                          GiveCup · Match Receipt
-                        </span>
-                      </div>
-                      <span className="rounded-full bg-emerald-500/15 px-2.5 py-0.5 text-xs font-medium text-emerald-700 dark:text-emerald-400">
-                        발급 완료
-                      </span>
-                    </div>
-
-                    <div className="relative mt-5 space-y-4">
-                      <div>
-                        <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                          영수증 ID
-                        </p>
-                        <p className="mt-1 break-all font-mono text-sm font-semibold text-foreground">
-                          {receipt.receiptId}
-                        </p>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                            기부자
-                          </p>
-                          <p className="mt-1 font-semibold text-foreground">
-                            {receipt.donorName}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                            {receipt.targetType === "country"
-                              ? "기부 국가"
-                              : "기부 집단"}
-                          </p>
-                          <p className="mt-1 font-semibold text-foreground">
-                            {receipt.targetIcon} {receipt.targetLabel}
-                          </p>
-                          {receipt.targetSubtitle && (
-                            <p className="text-xs text-muted-foreground mt-0.5">
-                              {receipt.targetSubtitle}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-
-                      {receipt.targetType === "dual" && receipt.countryName && (
-                          <div className="rounded-xl border border-border/40 bg-background/60 px-4 py-3">
-                            <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                              함께 응원한 국가
-                            </p>
-                            <p className="mt-1 font-semibold text-foreground">
-                              {receipt.countryFlag} {receipt.countryName}
-                            </p>
-                            {receipt.targetType === "dual" && (
-                              <p className="mt-1 text-xs text-accent">
-                                이중 기부 · 집단 + 국가 순위 동시 반영
-                              </p>
-                            )}
-                          </div>
-                        )}
-
-                      <div className="flex items-end justify-between rounded-xl bg-background/60 px-4 py-3 border border-border/40">
-                        <div>
-                          <p className="text-xs text-muted-foreground">
-                            기부 금액
-                          </p>
-                          <p className="text-2xl font-bold text-primary">
-                            ${receipt.amount.toLocaleString()}
-                          </p>
-                        </div>
-                        <p className="text-xs text-muted-foreground text-right max-w-[140px]">
-                          {formattedIssuedAt}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {receipt && (
-                  <DonationCertificateShare
-                    donorName={receipt.donorName}
-                    amount={receipt.amount}
-                    targetType={receipt.targetType}
-                    targetLabel={receipt.targetLabel}
-                    targetIcon={receipt.targetIcon}
-                    targetSubtitle={receipt.targetSubtitle}
-                    countryName={receipt.countryName}
-                    countryCode={receipt.countryCode}
+                  <DonationSuccessPanel
+                    receipt={receipt}
+                    onClose={handleCloseAfterSuccess}
+                    closeLabel="닫기"
                   />
                 )}
-
-                <Button
-                  size="lg"
-                  onClick={handleCloseAfterSuccess}
-                  className="w-full font-bold text-lg py-7 rounded-xl"
-                >
-                  닫기
-                </Button>
               </div>
             </>
           )}

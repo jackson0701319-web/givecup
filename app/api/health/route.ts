@@ -12,5 +12,9 @@ export async function GET() {
       hasAnonKey: Boolean(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim()),
       hasServiceRole: Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY?.trim()),
     },
+    tossPayments: {
+      hasClientKey: Boolean(process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY?.trim()),
+      hasSecretKey: Boolean(process.env.TOSS_SECRET_KEY?.trim()),
+    },
   })
 }
